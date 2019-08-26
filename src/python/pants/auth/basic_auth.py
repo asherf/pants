@@ -1,8 +1,10 @@
 # Copyright 2018 Pants project contributors (see CONTRIBUTORS.md).
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
+import os
 from collections import namedtuple
 from dataclasses import dataclass
+from enum import Enum, unique
 from typing import Dict, Optional
 
 import requests
@@ -18,6 +20,9 @@ class Authentication:
   headers: Dict[str, str]
   request_args: Dict[str, str]
 
+  @classmethod
+  def empty(cls):
+    return cls(headers={}, request_args={})
 
 class BasicAuthException(Exception):
   pass
@@ -37,6 +42,12 @@ class Challenged(BasicAuthAttemptFailed):
 
 
 BasicAuthCreds = namedtuple('BasicAuthCreds', ['username', 'password'])
+
+@unique
+class AuthProvidersType(Enum):
+  NO_AUTH = "None"
+  SESSION = "Session"  # Using session cookies obtained via pants login
+  ACCESS_TOKEN = "AccessToken"
 
 
 class BasicAuth(Subsystem):
@@ -94,6 +105,27 @@ class BasicAuth(Subsystem):
 
     cookies.update(response.cookies) 
 
-  def get_auth_for_provider(self, auth_provider: str) -> Authentication:
+  def _session_cookies_auth_provider(self):
     cookies = Cookies.global_instance()
     return Authentication(headers={}, request_args={'cookies': cookies.get_cookie_jar()})
+
+  def _access_token_auth_provider(self, provider_config: dict):
+    env_var_name = provider_config.get("environment_variable", 'PANTS_TRACKER_API_TOKEN')
+    access_token = os.environ.get(env_var_name)
+    if not access_token:
+      raise Exception(f"No access token assigned to environment variable: {env_var_name}")
+    headers ={'Authorization': f"Bearer {access_token}"}
+    return Authentication(headers=headers, request_args={})
+
+  def get_auth_for_provider(self, auth_provider: str) -> Authentication:
+    providers = self.get_options().providers
+    provider_config = providers.get(auth_provider)
+    provider_type = AuthProvidersType(provider_config.get('type', AuthProvidersType.SESSION))
+    print(f"PROVIDER CFG: {auth_provider} {provider_type} -- {provider_config}")
+    if provider_type == AuthProvidersType.SESSION:
+      return self._session_cookies_auth_provider()
+    if provider_type == AuthProvidersType.NO_AUTH:
+      return Authentication.empty()
+    if provider_type == AuthProvidersType.ACCESS_TOKEN:
+      return self._access_token_auth_provider(provider_config)
+    raise Exception(f"unknown auth provider type")

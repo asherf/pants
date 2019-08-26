@@ -419,7 +419,6 @@ class RunTracker(Subsystem):
         error(f'HTTP error code: {res.status_code}. Reason: {res.reason}.')
         return False
       return True
-
     try:
       return do_post(stats_url, num_redirects_allowed=6)
     except Exception as e:  # Broad catch - we don't want to fail the build over upload errors.
