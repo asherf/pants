@@ -24,11 +24,14 @@ class StreamingWorkunitHandler:
 
   def start(self) -> None:
     if self.callbacks:
+      print(f"StreamingWorkunitHandler.start() {len(self.callbacks)}")
       self._thread_runner = _InnerHandler(self.scheduler, self.callbacks, self.report_interval)
       self._thread_runner.start()
 
   def end(self) -> None:
+    print("StreamingWorkunitHandler.end()")
     if self._thread_runner:
+      print("StreamingWorkunitHandler.end():join")
       self._thread_runner.join()
 
     # After stopping the thread, poll workunits one last time to make sure
@@ -40,10 +43,14 @@ class StreamingWorkunitHandler:
   @contextmanager
   def session(self) -> Iterator[None]:
     try:
+      print("session.start")
       self.start()
+      print("session.yield")
       yield
+      print("session.end")
       self.end()
     except Exception as e:
+      print("session.error")
       if self._thread_runner:
         self._thread_runner.join()
       raise e
@@ -63,7 +70,9 @@ class _InnerHandler(threading.Thread):
       for callback in self.callbacks:
         callback(workunits=workunits, finished=False)
       self.stop_request.wait(timeout=self.report_interval)
+    print("Leave _InnerHandler.run")
 
   def join(self, timeout=None):
+    print("_InnerHandler.join()")
     self.stop_request.set()
     super(_InnerHandler, self).join(timeout)

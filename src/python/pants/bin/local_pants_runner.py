@@ -326,22 +326,36 @@ class LocalPantsRunner(ExceptionSink.AccessGlobalExiterMixin):
     streaming_reporter = StreamingWorkunitHandler(self._scheduler_session, callbacks=callbacks)
 
     with streaming_reporter.session():
+      print("start session")
       try:
         self._maybe_handle_help()
         engine_result = self._maybe_run_v2()
         goal_runner_result = self._maybe_run_v1()
+        print("finish v1 & v2 runs")
+      except Exception as error:
+        print(f"got error {error!r}")
+      except:
+        print("got unknown ")
+        logger.warning("unknown error", exc_info=True)
       finally:
-        try:
-          self._update_stats()
-          run_tracker_result = self._run_tracker.end()
-        except ValueError as e:
-          # Calling .end() sometimes writes to a closed file, so we return a dummy result here.
-          logger.exception(e)
-          run_tracker_result = PANTS_SUCCEEDED_EXIT_CODE
-
+        run_tracker_result = self._finish_run()
+        print(f"exit: {run_tracker_result}")
+      print("end-try-finally")
+    print("session.exit")
     final_exit_code = self._compute_final_exit_code(
       engine_result,
       goal_runner_result,
       run_tracker_result
     )
     self._exiter.exit(final_exit_code)
+
+  def _finish_run(self):
+    try:
+      self._update_stats()
+      run_tracker_result = self._run_tracker.end()
+    except ValueError as e:
+      print("value error ", e)
+      # Calling .end() sometimes writes to a closed file, so we return a dummy result here.
+      logger.exception(e)
+      run_tracker_result = PANTS_SUCCEEDED_EXIT_CODE
+    return run_tracker_result
