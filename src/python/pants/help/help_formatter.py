@@ -47,7 +47,7 @@ class HelpFormatter(MaybeColor):
         add_option(oshi.basic)
         if self._show_advanced:
             add_option(oshi.advanced, category="advanced")
-        if self._show_deprecated:
+        if self._show_deprecated and oshi.deprecated:
             add_option(oshi.deprecated, category="deprecated")
         return [*lines, ""]
 
