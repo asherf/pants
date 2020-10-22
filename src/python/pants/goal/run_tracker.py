@@ -3,6 +3,10 @@
 
 import json
 import logging
+<<<<<<< HEAD
+=======
+import multiprocessing
+>>>>>>> b1ab3e58c... RunTracker log messages
 import os
 import sys
 import threading
@@ -10,7 +14,11 @@ import time
 import uuid
 from collections import OrderedDict
 from pathlib import Path
+<<<<<<< HEAD
 from typing import Dict, List, Optional, Tuple
+=======
+from typing import Any, Dict, List, Optional, Tuple
+>>>>>>> b1ab3e58c... RunTracker log messages
 
 from pants.base.exiter import PANTS_FAILED_EXIT_CODE, PANTS_SUCCEEDED_EXIT_CODE, ExitCode
 from pants.base.run_info import RunInfo
@@ -24,6 +32,8 @@ from pants.option.scope import GLOBAL_SCOPE, GLOBAL_SCOPE_CONFIG_SECTION
 from pants.option.subsystem import Subsystem
 from pants.reporting.report import Report
 from pants.util.dirutil import relative_symlink, safe_file_dump
+
+logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 
