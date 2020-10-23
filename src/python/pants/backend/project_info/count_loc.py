@@ -24,10 +24,10 @@ class SuccinctCodeCounter(ExternalTool):
     """The Succinct Code Counter, aka `scc` (https://github.com/boyter/scc)."""
 
     options_scope = "scc"
-    default_version = "2.12.0"
+    default_version = "2.13.0"
     default_known_versions = [
-        "2.12.0|darwin|70b7002cd1e4541cb37b7b9cbc0eeedd13ceacb49628e82ab46332bb2e65a5a6|1842530",
-        "2.12.0|linux|8eca3e98fe8a78d417d3779a51724515ac4459760d3ec256295f80954a0da044|1753059",
+        "2.13.0|darwin|38948467985f0662ab6bf6d676294e84a92202530233d0cc6e98afa309cabac9|2092291",
+        "2.13.0|linux|b49d030ce8280252b5928946ee1d7006dd80c6b662bd99ee3fe16af411d80b3c|1973146",
     ]
 
     @classmethod
