@@ -583,7 +583,7 @@ def test_mypy_shadows_requirements(rule_runner: RuleRunner) -> None:
         ),
     )
     tgt = rule_runner.get_target(Address("", target_name="lib"))
-    result = run_mypy(rule_runner, [tgt], additional_args=["--mypy-version=mypy==0.782"])
+    result = run_mypy(rule_runner, [tgt], additional_args=["--mypy-version=mypy==0.790"])
     assert len(result) == 1
     assert result[0].exit_code == 0
     assert "Success: no issues found" in result[0].stdout
@@ -600,7 +600,7 @@ def test_source_plugin(rule_runner: RuleRunner) -> None:
             """\
             python_requirement_library(
                 name='mypy',
-                requirements=['mypy==0.782'],
+                requirements=['mypy==0.790'],
             )
 
             python_requirement_library(
